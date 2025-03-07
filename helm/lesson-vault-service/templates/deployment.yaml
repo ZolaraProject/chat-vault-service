@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ include "chatvaultservice.name" . }}-dpl"
+  labels:
+{{ include "chatvaultservice.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector: 
+    matchLabels:
+{{ include "chatvaultservice.matchLabels" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+{{ include "chatvaultservice.labels" . | indent 8 }}
+      annotations:
+        kubectl.kubernetes.io/default-logs-container: {{ include "chatvaultservice.name" . }}
+    spec:
+      {{- with .Values.podSecurityContext }}
+      podSecurityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: {{ include "chatvaultservice.name" . }}
+        image: {{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.port }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "chatvaultservice.name" . }}-cm
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+        lifecycle:
+          {{ toYaml .Values.lifecycle | nindent 10 }}
+        env:
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: postgres-credentials
+                key: username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-credentials
+                key: password

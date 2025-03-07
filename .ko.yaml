@@ -1,0 +1,7 @@
+builds:
+- id: chat-vault-service
+  dir: ./
+  outputImage: nexuszolara.me/zolara-microservice/chat-vault-service
+  ldflags:
+  - -s -w
+  

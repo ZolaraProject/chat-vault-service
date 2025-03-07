@@ -1,0 +1,68 @@
+syntax = "proto3";
+package chatvaultrpc;
+option go_package = "github.com/ZolaraProject/chat-vault-service/chatvaultrpc";
+
+
+service ChatVaultService {
+    rpc CreateConversation(ConversationRequest) returns (ConversationResponse) {}
+    rpc GetConversationList(ConversationListRequest) returns (ConversationListResponse) {}
+    rpc SaveChatMessage(ChatMessageRequest) returns (SaveChatMessageResponse) {}
+    rpc GetChatMessageList(ChatMessageListRequest) returns (ChatMessageListResponse) {}
+}
+
+message ConversationRequest {
+    int64 userId = 1;
+    string title = 2;
+    string createdAt = 3;
+}
+
+message ConversationResponse {J
+    int64 id = 1;
+    string title = 2;
+}
+
+message ConversationListRequest {
+    int64 userId = 1;
+}
+
+message ConversationListResponse {
+    repeated ConversationResponse conversations = 1;
+}
+
+enum MessageTypes {
+    SELF = 0;
+    SENDER = 1;
+}
+
+message ChatMessageRequest {
+    int64 conversationId = 1;
+    int64 userId = 2;
+    string content = 3;
+    MessageTypes messageType = 4;
+}
+
+message SaveChatMessageResponse {
+    string message = 1;
+}
+
+message ChatMessageResponse {
+    int64 id = 1;
+    string message = 2;
+    MessageTypes messageType = 3;
+    string createdAt = 4;
+}
+
+message ChatMessageStrResponse {
+    int64 id = 1;
+    string message = 2;
+    string messageType = 3;
+    string createdAt = 4;
+}
+
+message ChatMessageListRequest {
+    int64 conversationId = 1;
+}
+
+message ChatMessageListResponse {
+    repeated ChatMessageStrResponse messages = 1;
+}
